@@ -8,7 +8,7 @@ export default defineConfig(() => {
     // Set base path for GitHub Pages deployment
     // In production, this will be replaced by the repository name
     // For local development, it defaults to '/'
-    base: process.env.NODE_ENV === 'production' ? '/repository-name/' : '/',
+    base: process.env.NODE_ENV === 'production' ? '/ReviewQR-Pro/' : '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {

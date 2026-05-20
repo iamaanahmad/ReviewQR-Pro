@@ -73,7 +73,15 @@ export default function App() {
     if (!printArea) return;
     
     try {
-      const canvas = await html2canvas(printArea, { scale: 2, useCORS: true, backgroundColor: settings.backgroundColor, logging: false });
+      const canvas = await html2canvas(printArea, { 
+        scale: 3, 
+        useCORS: true, 
+        allowTaint: true,
+        backgroundColor: settings.backgroundColor, 
+        logging: false,
+        imageTimeout: 0,
+        removeContainer: true
+      });
       const imgData = canvas.toDataURL('image/jpeg', 1.0);
       
       const pdf = new jsPDF({
@@ -89,8 +97,7 @@ export default function App() {
       pdf.save(`review-poster-${settings.businessName.replace(/\s+/g, '-').toLowerCase()}.pdf`);
     } catch (err) {
       console.error('Error generating PDF', err);
-      // Fallback
-      window.print();
+      alert('Error generating PDF. Please try again or use the browser print function.');
     }
   };
 
@@ -99,14 +106,25 @@ export default function App() {
     if (!printArea) return;
     
     try {
-      const canvas = await html2canvas(printArea, { scale: 3, useCORS: true, backgroundColor: settings.backgroundColor, logging: false });
+      const canvas = await html2canvas(printArea, { 
+        scale: 3, 
+        useCORS: true, 
+        allowTaint: true,
+        backgroundColor: settings.backgroundColor, 
+        logging: false,
+        imageTimeout: 0,
+        removeContainer: true
+      });
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.download = `review-poster-${settings.businessName.replace(/\s+/g, '-').toLowerCase()}.png`;
       link.href = dataUrl;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     } catch (err) {
       console.error('Error generating image', err);
+      alert('Error generating image. Please try again.');
     }
   };
 

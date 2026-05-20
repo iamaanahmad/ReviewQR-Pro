@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "vite preview --port=4173",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "build:prod": "NODE_ENV=production vite build"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
@@ -17,7 +18,7 @@
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "html2canvas": "^1.4.1",
-    "jspdf": "^4.2.1",
+    "jspdf": "^2.5.2",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "qrcode.react": "^4.2.0",

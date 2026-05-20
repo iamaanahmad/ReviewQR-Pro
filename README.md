@@ -2,7 +2,7 @@
 
 > A free, beautiful, and customizable QR code poster generator for Google Business reviews
 
-[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)](https://your-username.github.io/your-repo-name/)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)](https://iamaanahmad.github.io/ReviewQR-Pro/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## ✨ Features
@@ -19,7 +19,7 @@
 
 ## 🚀 Demo
 
-Check out the live demo: [ReviewQR Pro Demo](https://your-username.github.io/your-repo-name/)
+Check out the live demo: [ReviewQR Pro Demo](https://iamaanahmad.github.io/ReviewQR-Pro/)
 
 ## 🛠️ Technologies Used
 
@@ -43,8 +43,8 @@ Check out the live demo: [ReviewQR Pro Demo](https://your-username.github.io/you
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/your-repo-name.git
-   cd your-repo-name
+   git clone https://github.com/iamaanahmad/ReviewQR-Pro.git
+   cd ReviewQR-Pro
    ```
 
 2. **Install dependencies**
