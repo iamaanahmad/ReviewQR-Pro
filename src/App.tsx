@@ -68,12 +68,48 @@ export default function App() {
     }
   }, [settings.language]);
 
+  const convertOklchToRgb = (element: HTMLElement) => {
+    const computedStyle = window.getComputedStyle(element);
+    const color = computedStyle.color;
+    const backgroundColor = computedStyle.backgroundColor;
+    const borderColor = computedStyle.borderColor;
+    
+    if (color && color.includes('oklch')) {
+      element.style.color = color;
+    }
+    if (backgroundColor && backgroundColor.includes('oklch')) {
+      element.style.backgroundColor = backgroundColor;
+    }
+    if (borderColor && borderColor.includes('oklch')) {
+      element.style.borderColor = borderColor;
+    }
+  };
+
+  const prepareForExport = (element: HTMLElement) => {
+    // Convert all oklch colors to rgb by forcing browser computation
+    const allElements = element.querySelectorAll('*');
+    allElements.forEach((el) => {
+      if (el instanceof HTMLElement) {
+        convertOklchToRgb(el);
+      }
+    });
+    convertOklchToRgb(element);
+  };
+
   const handlePrint = async () => {
     const printArea = document.getElementById('print-area');
     if (!printArea) return;
     
     try {
-      const canvas = await html2canvas(printArea, { 
+      // Clone the element to avoid modifying the original
+      const clone = printArea.cloneNode(true) as HTMLElement;
+      clone.style.position = 'absolute';
+      clone.style.left = '-9999px';
+      document.body.appendChild(clone);
+      
+      prepareForExport(clone);
+      
+      const canvas = await html2canvas(clone, { 
         scale: 3, 
         useCORS: true, 
         allowTaint: true,
@@ -82,6 +118,9 @@ export default function App() {
         imageTimeout: 0,
         removeContainer: true
       });
+      
+      document.body.removeChild(clone);
+      
       const imgData = canvas.toDataURL('image/jpeg', 1.0);
       
       const pdf = new jsPDF({
@@ -106,7 +145,15 @@ export default function App() {
     if (!printArea) return;
     
     try {
-      const canvas = await html2canvas(printArea, { 
+      // Clone the element to avoid modifying the original
+      const clone = printArea.cloneNode(true) as HTMLElement;
+      clone.style.position = 'absolute';
+      clone.style.left = '-9999px';
+      document.body.appendChild(clone);
+      
+      prepareForExport(clone);
+      
+      const canvas = await html2canvas(clone, { 
         scale: 3, 
         useCORS: true, 
         allowTaint: true,
@@ -115,6 +162,9 @@ export default function App() {
         imageTimeout: 0,
         removeContainer: true
       });
+      
+      document.body.removeChild(clone);
+      
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.download = `review-poster-${settings.businessName.replace(/\s+/g, '-').toLowerCase()}.png`;
