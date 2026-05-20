@@ -70,18 +70,41 @@ export default function App() {
 
   const convertOklchToRgb = (element: HTMLElement) => {
     const computedStyle = window.getComputedStyle(element);
+    
+    // Get computed colors (browser converts oklch to rgb internally)
     const color = computedStyle.color;
     const backgroundColor = computedStyle.backgroundColor;
     const borderColor = computedStyle.borderColor;
+    const borderTopColor = computedStyle.borderTopColor;
+    const borderRightColor = computedStyle.borderRightColor;
+    const borderBottomColor = computedStyle.borderBottomColor;
+    const borderLeftColor = computedStyle.borderLeftColor;
+    const fill = computedStyle.fill;
     
-    if (color && color.includes('oklch')) {
+    // Force inline styles with computed RGB values
+    if (color && color !== 'rgba(0, 0, 0, 0)') {
       element.style.color = color;
     }
-    if (backgroundColor && backgroundColor.includes('oklch')) {
+    if (backgroundColor && backgroundColor !== 'rgba(0, 0, 0, 0)') {
       element.style.backgroundColor = backgroundColor;
     }
-    if (borderColor && borderColor.includes('oklch')) {
+    if (borderColor && borderColor !== 'rgba(0, 0, 0, 0)') {
       element.style.borderColor = borderColor;
+    }
+    if (borderTopColor && borderTopColor !== 'rgba(0, 0, 0, 0)') {
+      element.style.borderTopColor = borderTopColor;
+    }
+    if (borderRightColor && borderRightColor !== 'rgba(0, 0, 0, 0)') {
+      element.style.borderRightColor = borderRightColor;
+    }
+    if (borderBottomColor && borderBottomColor !== 'rgba(0, 0, 0, 0)') {
+      element.style.borderBottomColor = borderBottomColor;
+    }
+    if (borderLeftColor && borderLeftColor !== 'rgba(0, 0, 0, 0)') {
+      element.style.borderLeftColor = borderLeftColor;
+    }
+    if (fill && fill !== 'rgba(0, 0, 0, 0)') {
+      element.style.fill = fill;
     }
   };
 
@@ -94,6 +117,15 @@ export default function App() {
       }
     });
     convertOklchToRgb(element);
+    
+    // Wait for styles to be applied
+    return new Promise<void>((resolve) => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          resolve();
+        });
+      });
+    });
   };
 
   const handlePrint = async () => {
@@ -105,9 +137,10 @@ export default function App() {
       const clone = printArea.cloneNode(true) as HTMLElement;
       clone.style.position = 'absolute';
       clone.style.left = '-9999px';
+      clone.style.top = '0';
       document.body.appendChild(clone);
       
-      prepareForExport(clone);
+      await prepareForExport(clone);
       
       const canvas = await html2canvas(clone, { 
         scale: 3, 
@@ -116,7 +149,7 @@ export default function App() {
         backgroundColor: settings.backgroundColor, 
         logging: false,
         imageTimeout: 0,
-        removeContainer: true
+        removeContainer: false
       });
       
       document.body.removeChild(clone);
@@ -149,9 +182,10 @@ export default function App() {
       const clone = printArea.cloneNode(true) as HTMLElement;
       clone.style.position = 'absolute';
       clone.style.left = '-9999px';
+      clone.style.top = '0';
       document.body.appendChild(clone);
       
-      prepareForExport(clone);
+      await prepareForExport(clone);
       
       const canvas = await html2canvas(clone, { 
         scale: 3, 
@@ -160,7 +194,7 @@ export default function App() {
         backgroundColor: settings.backgroundColor, 
         logging: false,
         imageTimeout: 0,
-        removeContainer: true
+        removeContainer: false
       });
       
       document.body.removeChild(clone);
