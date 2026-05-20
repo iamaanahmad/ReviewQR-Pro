@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-outfit: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+}
+
+@layer utilities {
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #print-area, #print-area * {
+      visibility: visible;
+    }
+    #print-area {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      page-break-after: always;
+      background-color: white !important;
+      box-shadow: none !important;
+    }
+    /* Hide scrollbars during print */
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}

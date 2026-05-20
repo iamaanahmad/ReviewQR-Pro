@@ -1,0 +1,6 @@
+{
+  "name": "Review QR Generator",
+  "description": "Generate a beautiful, printable QR code poster for your Google Business Profile to encourage customer reviews.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
