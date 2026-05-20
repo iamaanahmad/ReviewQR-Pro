@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { QRCodeCanvas } from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import { Settings, Printer, Image as ImageIcon, Link as LinkIcon, Type, Palette, LayoutTemplate, Download, Share2, Facebook, Twitter, Linkedin, Link2, Globe } from 'lucide-react';
 import domtoimage from 'dom-to-image-more';
 import jsPDF from 'jspdf';
@@ -10,37 +10,121 @@ const translations = {
     headline: "Review us on Google",
     instructions: "Scan the QR code to leave a review",
     reviewBadge: "Reviews",
-    seoDesc: "Generate a free, beautiful, and printable QR code poster for your Google Business Profile."
+    seoDesc: "Generate a free, beautiful, and printable QR code poster for your Google Business Profile.",
+    headlineTemplates: [
+      "Review us on Google",
+      "Rate us on Google",
+      "Leave us a Google Review",
+      "Share your experience",
+      "Tell others about us"
+    ],
+    subheadlineTemplates: [
+      "Your feedback matters to us",
+      "Help others discover us",
+      "Share your experience with others",
+      "We value your opinion",
+      "Thank you for choosing us"
+    ]
   },
   hi: {
     headline: "Google पर हमारी समीक्षा करें",
     instructions: "समीक्षा देने के लिए QR कोड को स्कैन करें",
     reviewBadge: "समीक्षाएँ",
-    seoDesc: "अपने Google व्यवसाय प्रोफ़ाइल के लिए मुफ़्त और प्रिंट करने योग्य QR कोड पोस्टर बनाएँ।"
+    seoDesc: "अपने Google व्यवसाय प्रोफ़ाइल के लिए मुफ़्त और प्रिंट करने योग्य QR कोड पोस्टर बनाएँ।",
+    headlineTemplates: [
+      "Google पर हमारी समीक्षा करें",
+      "Google पर हमें रेट करें",
+      "हमें Google समीक्षा दें",
+      "अपना अनुभव साझा करें",
+      "हमारे बारे में दूसरों को बताएं"
+    ],
+    subheadlineTemplates: [
+      "आपकी प्रतिक्रिया हमारे लिए महत्वपूर्ण है",
+      "दूसरों को हमें खोजने में मदद करें",
+      "अपना अनुभव दूसरों के साथ साझा करें",
+      "हम आपकी राय को महत्व देते हैं",
+      "हमें चुनने के लिए धन्यवाद"
+    ]
   },
   ur: {
     headline: "Google پر ہمارا جائزہ لیں",
     instructions: "جائزہ چھوڑنے کے لیے QR کوڈ اسکین کریں",
     reviewBadge: "جائزے",
-    seoDesc: "اپنے گوگل بزنس پروفائل کے لیے ایک مفت اور پرنٹ کے قابل کیو آر کوڈ پوسٹر بنائیں۔"
+    seoDesc: "اپنے گوگل بزنس پروفائل کے لیے ایک مفت اور پرنٹ کے قابل کیو آر کوڈ پوسٹر بنائیں۔",
+    headlineTemplates: [
+      "Google پر ہمارا جائزہ لیں",
+      "Google پر ہمیں ریٹ کریں",
+      "ہمیں Google جائزہ دیں",
+      "اپنا تجربہ شیئر کریں",
+      "دوسروں کو ہمارے بارے میں بتائیں"
+    ],
+    subheadlineTemplates: [
+      "آپ کی رائے ہمارے لیے اہم ہے",
+      "دوسروں کو ہمیں تلاش کرنے میں مدد کریں",
+      "اپنا تجربہ دوسروں کے ساتھ شیئر کریں",
+      "ہم آپ کی رائے کو اہمیت دیتے ہیں",
+      "ہمیں منتخب کرنے کا شکریہ"
+    ]
   },
   es: {
     headline: "Califícanos en Google",
     instructions: "Escanea el código QR para dejar una reseña",
     reviewBadge: "Reseñas",
-    seoDesc: "Genera un póster de código QR gratuito e imprimible para tu Perfil de Negocio de Google."
+    seoDesc: "Genera un póster de código QR gratuito e imprimible para tu Perfil de Negocio de Google.",
+    headlineTemplates: [
+      "Califícanos en Google",
+      "Déjanos una reseña en Google",
+      "Comparte tu experiencia",
+      "Cuéntanos qué te pareció",
+      "Ayuda a otros a conocernos"
+    ],
+    subheadlineTemplates: [
+      "Tu opinión es importante para nosotros",
+      "Ayuda a otros a descubrirnos",
+      "Comparte tu experiencia con otros",
+      "Valoramos tu opinión",
+      "Gracias por elegirnos"
+    ]
   },
   ar: {
     headline: "قيمنا على جوجل",
     instructions: "امسح رمز الاستجابة السريعة لترك مراجعة",
     reviewBadge: "المراجعات",
-    seoDesc: "أنشئ ملصق رمز استجابة سريعة مجاني وقابل للطباعة لملف تعريف نشاطك التجاري على جوجل."
+    seoDesc: "أنشئ ملصق رمز استجابة سريعة مجاني وقابل للطباعة لملف تعريف نشاطك التجاري على جوجل.",
+    headlineTemplates: [
+      "قيمنا على جوجل",
+      "اترك لنا مراجعة على جوجل",
+      "شارك تجربتك",
+      "أخبرنا برأيك",
+      "ساعد الآخرين في اكتشافنا"
+    ],
+    subheadlineTemplates: [
+      "رأيك مهم بالنسبة لنا",
+      "ساعد الآخرين في العثور علينا",
+      "شارك تجربتك مع الآخرين",
+      "نحن نقدر رأيك",
+      "شكراً لاختيارنا"
+    ]
   },
   pt: {
     headline: "Avalie-nos no Google",
     instructions: "Escaneie o código QR para deixar uma avaliação",
     reviewBadge: "Avaliações",
-    seoDesc: "Gere um pôster de código QR gratuito e imprimível para o seu Perfil de Empresa do Google."
+    seoDesc: "Gere um pôster de código QR gratuito e imprimível para o seu Perfil de Empresa do Google.",
+    headlineTemplates: [
+      "Avalie-nos no Google",
+      "Deixe uma avaliação no Google",
+      "Compartilhe sua experiência",
+      "Conte-nos sua opinião",
+      "Ajude outros a nos conhecer"
+    ],
+    subheadlineTemplates: [
+      "Sua opinião é importante para nós",
+      "Ajude outros a nos descobrir",
+      "Compartilhe sua experiência com outros",
+      "Valorizamos sua opinião",
+      "Obrigado por nos escolher"
+    ]
   }
 };
 
@@ -49,7 +133,7 @@ export default function App() {
     url: 'https://g.page/r/example/review',
     businessName: "Joe's Coffee Shop",
     headline: 'Review us on Google',
-    subheadline: '1. Open your phone camera\n2. Point it at the QR code',
+    subheadline: 'Your feedback matters to us',
     primaryColor: '#3b82f6',
     backgroundColor: '#ffffff',
     textColor: '#202124',
@@ -198,7 +282,10 @@ export default function App() {
           border: 'none',
           outline: 'none',
           boxShadow: 'none',
-          transform: 'none'
+          transform: 'none',
+          position: 'relative',
+          left: '0',
+          top: '0'
         }
       });
       
@@ -276,7 +363,10 @@ export default function App() {
           padding: '0',
           border: 'none',
           outline: 'none',
-          boxShadow: 'none'
+          boxShadow: 'none',
+          position: 'relative',
+          left: '0',
+          top: '0'
         }
       });
       
@@ -365,8 +455,9 @@ export default function App() {
                     setSettings(s => ({ 
                       ...s, 
                       language: newLang,
-                      // Update headline to new language if they haven't customized it, or just always update
-                      headline: translations[newLang].headline
+                      // Update headline and subheadline to new language defaults
+                      headline: translations[newLang].headline,
+                      subheadline: translations[newLang].subheadlineTemplates[0]
                     }));
                   }}
                   className="mt-1 block w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
@@ -409,6 +500,53 @@ export default function App() {
                   onChange={e => setSettings(s => ({ ...s, headline: e.target.value }))}
                   className="mt-1 block w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                 />
+                <div className="mt-2">
+                  <span className="text-xs text-slate-500 uppercase font-medium">Quick Templates</span>
+                  <div className="grid grid-cols-1 gap-1 mt-1">
+                    {translations[settings.language].headlineTemplates.map((template, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSettings(s => ({ ...s, headline: template }))}
+                        className={`px-2 py-1 text-xs rounded text-left transition-colors ${
+                          settings.headline === template 
+                            ? 'bg-blue-100 text-blue-700 border border-blue-300' 
+                            : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200'
+                        }`}
+                      >
+                        {template}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </label>
+
+              <label className="block">
+                <span className="text-xs font-bold text-slate-500 uppercase">Sub-headline</span>
+                <input
+                  type="text"
+                  value={settings.subheadline}
+                  onChange={e => setSettings(s => ({ ...s, subheadline: e.target.value }))}
+                  className="mt-1 block w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="Optional sub-headline text"
+                />
+                <div className="mt-2">
+                  <span className="text-xs text-slate-500 uppercase font-medium">Quick Templates</span>
+                  <div className="grid grid-cols-1 gap-1 mt-1">
+                    {translations[settings.language].subheadlineTemplates.map((template, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSettings(s => ({ ...s, subheadline: template }))}
+                        className={`px-2 py-1 text-xs rounded text-left transition-colors ${
+                          settings.subheadline === template 
+                            ? 'bg-blue-100 text-blue-700 border border-blue-300' 
+                            : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200'
+                        }`}
+                      >
+                        {template}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </label>
             </div>
           </section>
@@ -648,6 +786,14 @@ function renderTemplate(settings: PosterSettings) {
               >
                 {settings.headline}
               </h1>
+              {settings.subheadline && (
+                <p 
+                  className="text-lg font-medium max-w-lg mx-auto leading-snug mb-3 px-4" 
+                  style={{ color: settings.textColor, opacity: 0.8 }}
+                >
+                  {settings.subheadline}
+                </p>
+              )}
               <p 
                 className="text-xl font-medium max-w-lg mx-auto leading-snug whitespace-pre-line px-4" 
                 style={{ color: settings.textColor }}
@@ -657,8 +803,8 @@ function renderTemplate(settings: PosterSettings) {
             </div>
             
             <div className="flex-1 flex flex-col items-center justify-center mt-4 mb-4 min-h-0">
-              <div className="bg-white rounded-[2rem] p-4 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-[4px]" style={{ borderColor: settings.primaryColor }}>
-                <QRCodeCanvas {...qrProps} size={230} />
+              <div className="bg-white rounded-[2rem] p-4 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-[4px] qr-wrapper" style={{ borderColor: settings.primaryColor }}>
+                <QRCodeSVG {...qrProps} size={230} />
               </div>
             </div>
 
@@ -679,7 +825,7 @@ function renderTemplate(settings: PosterSettings) {
 
     case 'elegant':
       return (
-        <div className="w-full h-full flex flex-col relative font-serif" style={{ borderColor: settings.primaryColor, borderWidth: '12px' }}>
+        <div className="w-full h-full flex flex-col relative font-serif elegant-container" style={{ borderColor: settings.primaryColor, borderWidth: '12px' }}>
           <div className="absolute top-0 left-0 w-full h-full opacity-5 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-black to-transparent pointer-events-none"></div>
           
           <GoogleColorsBand />
@@ -703,14 +849,20 @@ function renderTemplate(settings: PosterSettings) {
                 {settings.headline}
               </h1>
 
+              {settings.subheadline && (
+                <p className="text-base max-w-xs mx-auto opacity-70 leading-relaxed font-sans font-medium mb-2 px-4" style={{ color: settings.textColor }}>
+                  {settings.subheadline}
+                </p>
+              )}
+
               <p className="text-[1rem] max-w-xs mx-auto opacity-80 leading-relaxed font-sans font-light whitespace-pre-line px-4" style={{ color: settings.textColor }}>
                 {instructionsText}
               </p>
             </div>
 
             <div className="flex-1 flex items-center justify-center min-h-0 py-4 w-full">
-              <div className="bg-white p-4 shadow-xl rounded-xl border-2 pointer-events-none" style={{ borderColor: settings.primaryColor }}>
-                <QRCodeCanvas {...qrProps} size={180} />
+              <div className="bg-white p-4 shadow-xl rounded-xl border-2 pointer-events-none qr-wrapper" style={{ borderColor: settings.primaryColor }}>
+                <QRCodeSVG {...qrProps} size={180} />
               </div>
             </div>
 
@@ -743,11 +895,16 @@ function renderTemplate(settings: PosterSettings) {
               <h1 className="text-[2.25rem] font-bold tracking-tight mt-3 text-center leading-tight px-2 w-full line-clamp-2" style={{ color: settings.textColor !== '#1f2937' ? settings.textColor : '#202124' }}>
                 {settings.headline || 'Review us on Google'}
               </h1>
+              {settings.subheadline && (
+                <p className="text-lg font-medium mt-2 text-center leading-tight px-4 w-full opacity-80" style={{ color: settings.textColor !== '#1f2937' ? settings.textColor : '#202124' }}>
+                  {settings.subheadline}
+                </p>
+              )}
             </div>
 
             {/* QR Code Section */}
             <div className="flex-1 flex items-center justify-center min-h-0 py-4">
-              <QRCodeCanvas 
+              <QRCodeSVG 
                 {...qrProps} 
                 size={230} 
                 imageSettings={{

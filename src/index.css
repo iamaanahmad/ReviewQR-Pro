@@ -68,9 +68,15 @@
   visibility: hidden !important;
 }
 
-/* Ensure clean borders */
+/* Disable all default borders inside print area to prevent grid line artifacts */
 #print-area * {
+  border-style: none !important;
   border-image: none !important;
+}
+
+/* Allow borders only on elements that explicitly need them */
+#print-area .elegant-container,
+#print-area .qr-wrapper {
   border-style: solid !important;
 }
 
