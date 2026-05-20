@@ -34,6 +34,60 @@
   --color-black: rgb(0, 0, 0);
 }
 
+/* Prevent rendering artifacts in exports */
+#print-area {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  outline: none !important;
+  border: none !important;
+}
+
+#print-area *,
+#print-area *::before,
+#print-area *::after {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
+  outline: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Hide any debug overlays, grid lines, or browser artifacts */
+#print-area .debug,
+#print-area .grid,
+#print-area .overlay,
+#print-area [class*="debug"],
+#print-area [class*="grid"],
+#print-area [class*="outline"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Ensure clean borders */
+#print-area * {
+  border-image: none !important;
+  border-style: solid !important;
+}
+
+/* Remove any potential grid overlays */
+#print-area {
+  background-image: none !important;
+  background-attachment: scroll !important;
+}
+
+/* Force hardware acceleration off to prevent artifacts */
+#print-area,
+#print-area * {
+  transform: none !important;
+  will-change: auto !important;
+  contain: none !important;
+}
+
 @layer utilities {
   @media print {
     body * {

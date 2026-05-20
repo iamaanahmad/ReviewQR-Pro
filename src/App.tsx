@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Settings, Printer, Image as ImageIcon, Link as LinkIcon, Type, Palette, LayoutTemplate, Download, Share2, Facebook, Twitter, Linkedin, Link2, Globe } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import domtoimage from 'dom-to-image-more';
 import jsPDF from 'jspdf';
 import { PosterSettings } from './types';
 
@@ -108,24 +108,56 @@ export default function App() {
     }
   };
 
-  const prepareForExport = (element: HTMLElement) => {
-    // Convert all oklch colors to rgb by forcing browser computation
-    const allElements = element.querySelectorAll('*');
+  const createCleanExportElement = (originalElement: HTMLElement) => {
+    // Create a completely new container
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '500px';
+    container.style.height = '707px';
+    container.style.backgroundColor = settings.backgroundColor;
+    container.style.fontFamily = 'Inter, sans-serif';
+    container.style.margin = '0';
+    container.style.padding = '0';
+    container.style.border = 'none';
+    container.style.outline = 'none';
+    container.style.boxShadow = 'none';
+    
+    // Clone the content
+    const clone = originalElement.cloneNode(true) as HTMLElement;
+    
+    // Clean up the clone
+    clone.style.width = '500px';
+    clone.style.height = '707px';
+    clone.style.margin = '0';
+    clone.style.padding = '0';
+    clone.style.border = 'none';
+    clone.style.outline = 'none';
+    clone.style.boxShadow = 'none';
+    clone.style.transform = 'none';
+    
+    // Remove any debug classes or attributes
+    const allElements = clone.querySelectorAll('*');
     allElements.forEach((el) => {
       if (el instanceof HTMLElement) {
+        // Remove debug classes
+        el.classList.remove('debug', 'grid', 'outline');
+        
+        // Clean styles
+        el.style.outline = 'none';
+        el.style.boxShadow = 'none';
+        el.style.textShadow = 'none';
+        
+        // Convert colors
         convertOklchToRgb(el);
       }
     });
-    convertOklchToRgb(element);
     
-    // Wait for styles to be applied
-    return new Promise<void>((resolve) => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          resolve();
-        });
-      });
-    });
+    convertOklchToRgb(clone);
+    container.appendChild(clone);
+    
+    return container;
   };
 
   const handlePrint = async () => {
@@ -133,43 +165,73 @@ export default function App() {
     if (!printArea) return;
     
     try {
-      // Clone the element to avoid modifying the original
-      const clone = printArea.cloneNode(true) as HTMLElement;
-      clone.style.position = 'absolute';
-      clone.style.left = '-9999px';
-      clone.style.top = '0';
-      document.body.appendChild(clone);
+      // Show loading state
+      const originalCursor = document.body.style.cursor;
+      document.body.style.cursor = 'wait';
       
-      await prepareForExport(clone);
+      // Create clean export element
+      const exportElement = createCleanExportElement(printArea);
+      document.body.appendChild(exportElement);
       
-      const canvas = await html2canvas(clone, { 
-        scale: 3, 
-        useCORS: true, 
-        allowTaint: true,
-        backgroundColor: settings.backgroundColor, 
-        logging: false,
-        imageTimeout: 0,
-        removeContainer: false
+      // Wait for rendering
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Generate image using dom-to-image with clean settings
+      const dataUrl = await domtoimage.toPng(exportElement, {
+        width: 500,
+        height: 707,
+        quality: 1,
+        bgcolor: settings.backgroundColor,
+        cacheBust: true,
+        filter: (node: HTMLElement) => {
+          // Filter out any debug elements
+          if (node.classList) {
+            return !node.classList.contains('debug') && 
+                   !node.classList.contains('grid') && 
+                   !node.classList.contains('outline');
+          }
+          return true;
+        },
+        style: {
+          margin: '0',
+          padding: '0',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          transform: 'none'
+        }
       });
       
-      document.body.removeChild(clone);
+      // Remove the temporary element
+      document.body.removeChild(exportElement);
       
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      
+      // Create PDF
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: 'a4',
+        compress: true
       });
       
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      // Calculate dimensions to fit A4 properly
+      const aspectRatio = 707 / 500;
+      const imgWidth = pdfWidth;
+      const imgHeight = pdfWidth * aspectRatio;
+      
+      // Center vertically if needed
+      const yOffset = imgHeight > pdfHeight ? 0 : (pdfHeight - imgHeight) / 2;
+      
+      pdf.addImage(dataUrl, 'PNG', 0, yOffset, imgWidth, imgHeight, undefined, 'FAST');
       pdf.save(`review-poster-${settings.businessName.replace(/\s+/g, '-').toLowerCase()}.pdf`);
+      
+      document.body.style.cursor = originalCursor;
     } catch (err) {
       console.error('Error generating PDF', err);
-      alert('Error generating PDF. Please try again or use the browser print function.');
+      document.body.style.cursor = 'default';
+      alert('Error generating PDF: ' + (err instanceof Error ? err.message : 'Unknown error'));
     }
   };
 
@@ -178,37 +240,69 @@ export default function App() {
     if (!printArea) return;
     
     try {
-      // Clone the element to avoid modifying the original
-      const clone = printArea.cloneNode(true) as HTMLElement;
-      clone.style.position = 'absolute';
-      clone.style.left = '-9999px';
-      clone.style.top = '0';
-      document.body.appendChild(clone);
+      // Show loading state
+      const originalCursor = document.body.style.cursor;
+      document.body.style.cursor = 'wait';
       
-      await prepareForExport(clone);
+      // Create clean export element
+      const exportElement = createCleanExportElement(printArea);
+      document.body.appendChild(exportElement);
       
-      const canvas = await html2canvas(clone, { 
-        scale: 3, 
-        useCORS: true, 
-        allowTaint: true,
-        backgroundColor: settings.backgroundColor, 
-        logging: false,
-        imageTimeout: 0,
-        removeContainer: false
+      // Wait for rendering
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Generate high-quality PNG at 2x resolution
+      const dataUrl = await domtoimage.toPng(exportElement, {
+        width: 1000,  // 2x for high quality
+        height: 1414, // 2x for high quality
+        quality: 1,
+        bgcolor: settings.backgroundColor,
+        cacheBust: true,
+        filter: (node: HTMLElement) => {
+          // Filter out any debug elements
+          if (node.classList) {
+            return !node.classList.contains('debug') && 
+                   !node.classList.contains('grid') && 
+                   !node.classList.contains('outline');
+          }
+          return true;
+        },
+        style: {
+          transform: 'scale(2)',
+          transformOrigin: 'top left',
+          width: '500px',
+          height: '707px',
+          margin: '0',
+          padding: '0',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none'
+        }
       });
       
-      document.body.removeChild(clone);
+      // Remove the temporary element
+      document.body.removeChild(exportElement);
       
-      const dataUrl = canvas.toDataURL('image/png');
+      // Convert data URL to blob
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      
+      // Download the blob
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.download = `review-poster-${settings.businessName.replace(/\s+/g, '-').toLowerCase()}.png`;
-      link.href = dataUrl;
+      link.href = url;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+      // Clean up
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+      document.body.style.cursor = originalCursor;
     } catch (err) {
       console.error('Error generating image', err);
-      alert('Error generating image. Please try again.');
+      document.body.style.cursor = 'default';
+      alert('Error generating image: ' + (err instanceof Error ? err.message : 'Unknown error'));
     }
   };
 
